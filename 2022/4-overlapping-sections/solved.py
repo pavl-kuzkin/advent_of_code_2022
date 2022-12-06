@@ -30,4 +30,25 @@ def solution_part1():
             total += 1
     print('part 1 answer', total)
 
-solution_part1()
+
+def overlaps(min1, max1, min2, max2):
+    if max1 < min2 or max2 < min1:
+        return 0
+    else:
+        return 1
+
+
+def solution_part2():
+    f = open("./input.txt", "r")
+    total = 0
+    for x in f:
+        first_range, second_range = parse_line(x.strip())
+        min1, max1 = first_range
+        min2, max2 = second_range
+        overlap = overlaps(min1, max1, min2, max2)
+        # print(first_range, second_range, overlap)
+        total += overlap
+    print('part 2 answer', total)
+
+# solution_part1()
+solution_part2()
