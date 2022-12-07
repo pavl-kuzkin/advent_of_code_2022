@@ -1,6 +1,8 @@
 # import json
 
+# part 1
 max_size1 = 100000
+size_key = "__size__"
 
 
 def index_nested_dict(dictionary: dict, keys: list):
@@ -48,12 +50,13 @@ def dir_size(fs: dict):
             dsize, d_bellow_max_size = dir_size(val)
             total_size += dsize
             bellow_max_sum += d_bellow_max_size
-            print('dir', key, 'size', dsize)
+            # print('dir', key, 'size', dsize)
             if dsize <= max_size1:
                 bellow_max_sum += dsize
         else:
             total_size += val
-        print(key, type(val), "below_max_size", bellow_max_sum)
+        # print(key, type(val), "below_max_size", bellow_max_sum)
+    fs[size_key] = total_size
     return total_size, bellow_max_sum
 
 
@@ -63,4 +66,33 @@ def solution_part1():
     dir_size(file_system)
 
 
-solution_part1()
+# solution_part1()
+
+# part 2
+total_fs_size = 70000000
+required_free_size = 30000000
+
+
+def find_dir_to_delete(fs: dict, min_dir_size):
+    best_dir_size = fs[size_key]
+    for key, val in fs.items():
+        if type(val) == dict:
+            child_best_size = find_dir_to_delete(val, min_dir_size)
+            if min_dir_size <= child_best_size < best_dir_size:
+                best_dir_size = child_best_size
+
+    return best_dir_size
+
+
+def solution_part2():
+    file_system = build_filesystem()
+
+    used_space, bellow_100k = dir_size(file_system)
+    available_space = total_fs_size - used_space
+    min_delete_size = required_free_size - available_space
+    # print("total size", min_delete_size)
+    # print(json.dumps(file_system, indent=4))
+    answer = find_dir_to_delete(file_system, min_delete_size)
+    print("p2 answer", answer)
+
+solution_part2()
