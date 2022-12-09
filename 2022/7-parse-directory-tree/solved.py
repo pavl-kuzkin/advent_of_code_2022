@@ -63,10 +63,11 @@ def dir_size(fs: dict):
 def solution_part1():
     file_system = build_filesystem()
     # print(json.dumps(file_system, indent=4))
-    dir_size(file_system)
+    total, below = dir_size(file_system)
+    print("P1 ans", below)
 
 
-# solution_part1()
+solution_part1()
 
 # part 2
 total_fs_size = 70000000
