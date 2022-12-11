@@ -1,9 +1,6 @@
 from enum import Enum
 from typing import Optional
 
-x_idx = 0
-y_idx = 1
-
 
 class Direction(Enum):
     LEFT = "L"
@@ -28,9 +25,6 @@ class RopeNode:
         self.tail: Optional[RopeNode] = None
         if rope_len > 1:
             self.tail = RopeNode(rope_len - 1)
-
-    def add_tail(self, tail: "RopeNode"):
-        self.tail = tail
 
     def move(self, direction: Direction, steps: int, tail_history: list):
         for i in range(steps):
