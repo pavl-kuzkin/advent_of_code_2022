@@ -11,7 +11,7 @@ class CPU:
         self.cycle_number = 0
         self.signal_history = {}
         # You count the pixels on the CRT: 40 wide and 6 high.
-        self.pixels = arr = ["." for element in range(40 * 6)]
+        self.pixels = ["." for _el in range(40 * 6)]
 
     def tik(self):
         self.cycle_number += 1
@@ -21,9 +21,8 @@ class CPU:
 
         # P2 check pixel
         pixel_idx = self.cycle_number - 1
-        if self.X-1 <= pixel_idx % 40 <= self.X+1:
+        if self.X - 1 <= pixel_idx % 40 <= self.X + 1:
             self.pixels[pixel_idx] = "#"
-
 
     def addx(self, val: int):
         self.X += val
@@ -42,7 +41,7 @@ class CPU:
         print("P1", sum(self.signal_history.values()))
         print("P2")
         for i in range(6):
-            row = self.pixels[40*i:40*(i+1)]
+            row = self.pixels[40 * i:40 * (i + 1)]
             print("".join(row))
 
 
