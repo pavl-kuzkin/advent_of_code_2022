@@ -79,7 +79,7 @@ rounds = 20
 
 def p1():
     # set up
-    lines = open("input.txt", "r").readlines()
+    lines = open("p1_input.txt", "r").readlines()
     monkeys = []
     for i in range(len(lines) // lines_per_monkey + 1):
         #  sample input for 1 monkey:
