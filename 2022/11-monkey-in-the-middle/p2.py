@@ -8,16 +8,17 @@ class Monkey:
         self.false_monkey = None
         self.true_monkey = None
         self.inspect_count = 0
-        print(commands)
+        self.common_denom = 1
+        # print(commands)
 
         #  Starting items: 79, 98
         items_command = commands[1].strip()[16:].split(", ")
         self.items = list(map(lambda x: int(x), items_command))
-        print(self.items)
+        # print(self.items)
 
         #  Operation: new = old * 19
         op_tokens = commands[2].strip()[17:].split()
-        print(op_tokens)
+        # print(op_tokens)
         if op_tokens[1] == "*":
             if op_tokens[2] == "old":
                 self.operation = lambda old: old * old
@@ -33,15 +34,15 @@ class Monkey:
 
         #  Test: divisible by 23
         self.divisible_by = int(commands[3].strip()[19:])
-        print(self.divisible_by)
+        # print(self.divisible_by)
 
         #   If true: throw to monkey 2
         self.true_pass = int(commands[4].strip()[25:])
-        print(self.true_pass)
+        # print(self.true_pass)
 
         #   If false: throw to monkey 3
         self.false_pass = int(commands[5].strip()[26:])
-        print(self.false_pass)
+        # print(self.false_pass)
 
     def set_true_false_monkeys(self, li: list):
         self.true_monkey = li[self.true_pass]
@@ -58,15 +59,16 @@ class Monkey:
         next_item = self.items.pop(0)
         # Worry level is multiplied by 19 to 1501.
         inspected = self.operation(next_item)
-        # Monkey gets bored with item. Worry level is divided by 3 to 500.
-        bored = inspected // 3
+        # P2 mod: item no longer causes your worry level to be divided by three.
+        # but now numbers are too big so we can compress them by
+        compressed = inspected % self.common_denom
         # Current worry level is not divisible by 23.
-        test_result = bored % self.divisible_by == 0
+        test_result = compressed % self.divisible_by == 0
         # Item with worry level 500 is thrown to monkey 3.
         if test_result:
-            self.true_monkey.catch(bored)
+            self.true_monkey.catch(compressed)
         else:
-            self.false_monkey.catch(bored)
+            self.false_monkey.catch(compressed)
         self.inspect_count += 1
 
     def do_turn(self):
@@ -75,12 +77,13 @@ class Monkey:
 
 
 
-rounds = 20
+rounds = 10000
 
-def p1():
+def p2():
     # set up
     lines = open("input.txt", "r").readlines()
     monkeys = []
+    common_denominator = 1
     for i in range(len(lines) // lines_per_monkey + 1):
         #  sample input for 1 monkey:
         # Monkey 0:
@@ -90,23 +93,28 @@ def p1():
         #   If true: throw to monkey 2
         #   If false: throw to monkey 3
         commands = lines[i * lines_per_monkey:(i + 1) * lines_per_monkey]
-        monkeys.append(Monkey(commands))
+        m = Monkey(commands)
+        monkeys.append(m)
+        common_denominator *= m.divisible_by
+    # link monkeys up so they know who to pass to
     for m in monkeys:
         m.set_true_false_monkeys(monkeys)
+        m.common_denom = common_denominator
 
     # do rounds
     for round in range(rounds):
-        print("round", round)
+        print("round", round+1)
         for m in monkeys:
             m.do_turn()
-        for m in monkeys:
-            print(m.items)
+        # for m in monkeys:
+        #     print(m.inspect_count)
 
     # check results
     inspect_counts = []
     for m in monkeys:
         inspect_counts.append(m.inspect_count)
+    print(inspect_counts)
     inspect_counts.sort()
-    print("P1", math.prod(inspect_counts[-2:]))
+    print("P2", math.prod(inspect_counts[-2:]))
 
-p1()
+p2()
