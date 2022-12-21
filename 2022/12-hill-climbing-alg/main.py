@@ -48,6 +48,7 @@ def pprint(graph):
 def find_ends(lines):
     start = None
     end = None
+    a_list = []
     for y in range(len(lines)):
         line = lines[y].strip()
         for x in range(len(line)):
@@ -56,7 +57,10 @@ def find_ends(lines):
                 end = Node(x, y, 'z')
             elif char == 'S':
                 start = Node(x, y, 'a')
-    return start, end
+                a_list.append(start)
+            elif char == 'a':
+                a_list.append(Node(x, y, 'a'))
+    return start, end, a_list
 
 
 def bfs(start: Node, end: Node, graph):
@@ -65,8 +69,8 @@ def bfs(start: Node, end: Node, graph):
     graph_y_size = len(graph)
     # int for infinity
     inf = 10000
-    print("bfs start", start, "end", end, "graph:")
-    pprint(graph)
+    print("bfs start", start, "end", end)
+    # pprint(graph)
     distances = []
     visited = copy(graph)
     for y in range(graph_y_size):
@@ -84,12 +88,12 @@ def bfs(start: Node, end: Node, graph):
 
     while len(next_nodes) > 0:
         node, dist = next_nodes.popleft()
-        print("pop", node, dist)
+        # print("pop", node, dist)
         if node == end:
-            print("found end", end, dist)
+            # print("found end", end, dist)
             return dist
         if str(node) in visited_nodes:
-            print("skipping because visited", node)
+            # print("skipping because visited", node)
             continue
 
         visited_nodes.append(str(node))
@@ -99,7 +103,7 @@ def bfs(start: Node, end: Node, graph):
         for neighbor in neighbors:
             if neighbor is not None:
                 next_nodes.append((neighbor, dist + 1))
-                print("|-neighbor", neighbor, "new dist", dist+1)
+                # print("|-neighbor", neighbor, "new dist", dist+1)
 
 
 
@@ -125,10 +129,14 @@ def p1():
     graph = []
     for line in lines:
         graph.append(line.strip())
-    start, end = find_ends(graph)
+    start, end, a_list = find_ends(graph)
     # pprint(graph)
     ans = bfs(start, end, graph)
     print("P1 ans", ans)
+    for a in a_list:
+        ans2 = bfs(a, end, graph)
+        ans = min(ans2, ans)
+    print("P2 ans", ans)
 
 
 p1()
