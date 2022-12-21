@@ -1,9 +1,12 @@
+from collections import deque
+
 
 class Node:
     def __init__(self, x: int, y: int, height: str):
         self.x = x
         self.y = y
         self.h = ord(height)
+        self.c = height
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -29,15 +32,9 @@ class Node:
             neighbor_h = 'z'
         if neighbor_h == "S":
             neighbor_h = 'a'
-        if abs(self.h - ord(neighbor_h)) < 2:
+        if ord(neighbor_h) - self.h < 2:
             return Node(x, y, neighbor_h)
         return None
-
-
-class Graph:
-    def __init__(self, lines):
-        self.node_map = lines
-        self.start, self.end = find_ends(lines)
 
 
 def pprint(graph):
@@ -80,31 +77,38 @@ def bfs(start: Node, end: Node, graph):
     distances[start.y][start.x] = 0
     distances[end.y][end.x] = 100001
     # pprint(distances)
+    visited_nodes = deque()
+    next_nodes = deque()
+    next_nodes.append((start, 0))
 
-    while len(queue) > 0:
-        node = queue.pop(0)
-        current_distance = distances[node.y][node.x]
-        visited[node.y][node.x] = '*'
-        print("pop", node)
-        pprint(visited)
-        visited[node.y][node.x] = "."
+
+    while len(next_nodes) > 0:
+        node, dist = next_nodes.popleft()
+        print("pop", node, dist)
         if node == end:
-            print("dist", current_distance)
+            print("found end", end, dist)
+            return dist
+        if str(node) in visited_nodes:
+            print("skipping because visited", node)
+            continue
+
+        visited_nodes.append(str(node))
+        visited[node.y][node.x] = node.c.capitalize()
+
         neighbors = node.neighbors(graph)
-        # for n in neighbors:
-        #     print("|-", n)
         for neighbor in neighbors:
             if neighbor is not None:
-                prev_dist = distances[neighbor.y][neighbor.x]
-                new_dist = current_distance + 1
-                print("|-neighbor", neighbor, "new dist", new_dist, "old dist", prev_dist)
-                if new_dist < prev_dist:
-                    distances[neighbor.y][neighbor.x] = new_dist
+                next_nodes.append((neighbor, dist + 1))
+                print("|-neighbor", neighbor, "new dist", dist+1)
 
-                    # pprint(distances)
-                    queue.append(neighbor)
-    # pprint(distances)
+
+
+        # pprint(visited)
+        visited[node.y][node.x] = "."
+
+    # pprint(visited)
     return distances[end.y][end.x]
+
 
 def copy(nested_list):
     copy = []
@@ -115,12 +119,14 @@ def copy(nested_list):
         copy.append(y_copy)
     return copy
 
+
 def p1():
     lines = open("input.txt", "r").readlines()
     graph = []
     for line in lines:
         graph.append(line.strip())
     start, end = find_ends(graph)
+    # pprint(graph)
     ans = bfs(start, end, graph)
     print("P1 ans", ans)
 
