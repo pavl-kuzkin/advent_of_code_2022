@@ -1,4 +1,5 @@
 import json
+from functools import cmp_to_key
 
 INPUT_FILE = "input.txt"
 
@@ -36,5 +37,21 @@ def p1():
             correct_list.append(pair_idx)
     print("P1 ans", sum(correct_list))
 
+def p2():
+    lines = open(INPUT_FILE, "r").readlines()
+    signals = [[[2]], [[6]]]
+    for x in range(0, len(lines), 3):
+        left = json.loads(lines[x].strip())
+        right = json.loads(lines[x + 1].strip())
+        signals.append(left)
+        signals.append(right)
+    index_prod = 1
+    for idx, sig in enumerate(reversed(sorted(signals, key=cmp_to_key(compare)))):
+        print(sig)
+        if sig == [[2]] or sig == [[6]]:
+            index_prod *= idx + 1
+    print("P2 ans", index_prod)
+
 
 p1()
+p2()
