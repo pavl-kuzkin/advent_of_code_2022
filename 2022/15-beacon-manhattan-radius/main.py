@@ -64,39 +64,37 @@ def pprint(signal_map):
             row.append(signal_map[(x, y)])
         print("  ".join(row))
 
-# i  i  i  i  B  g  g  g  g  g  g  g  g  g  d  g  g  l  j  j  j  j  j  j  j  j  j
-# i  i  i  i  B  g  g  g  g  g  g  g  g  g  d  g  g  l  j  j  j  j  j  j  j  j  j  .
-# #  #  #  #  B  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
-# #  #  #  #  B  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
 
-def problemOne():
-
-    # Note y-axis is inverted rocks start at 500,0 and fall "down" to 500,1 etc
+def read_input():
     lines = open(INPUT_FILE, "r").readlines()
-    signal_map = defaultdict(lambda: '.')
-    signal_map2 = defaultdict(lambda: '.')
-    xmin, xmax = 0, 0
-    c = 'a'
+    exclusion_zones = []
     for line in lines:
         points = decypher_line(line.strip())
-        # print(c, points, " <- ", line.strip())
+        print(points, " <- ", line.strip())
         xs, ys, xb, yb = points[0], points[1], points[2], points[3]
         beacon = (xb, yb)
         sensor = (xs, ys)
-        signal_map[beacon] = 'B'
+        exclusion_zones.append((sensor, beacon))
+    return exclusion_zones
+
+def problemOne():
+    signal_map = defaultdict(lambda: '.')
+    xmin, xmax = 0, 0
+
+    exclusion_zones = read_input()
+    for (sensor, beacon) in exclusion_zones:
         signal_map[sensor] = 'S'
-        # signal_map2[beacon] = 'B'
-        # signal_map2[sensor] = 'S'
-        d = distance(sensor, beacon)
-        coverage = circle_area(sensor, d)
-        print("getting #s")
+        signal_map[beacon] = 'B'
+        radius = distance(sensor, beacon)
+        print("calculating zone", sensor, radius)
+        coverage = circle_area(sensor, radius)
+        # print("getting #s")
         for point in coverage:
             if signal_map[point] == '.':
                 signal_map[point] = '#'
                 # signal_map2[point] = c
                 xmin = min(xmin, point[0])
                 xmax = max(xmax, point[0])
-        c = chr(ord(c)+1)
 
     print("alg range", xmin, xmax)
     # pprint(signal_map)
@@ -107,7 +105,7 @@ def problemOne():
         if signal_map[(x, Y_LINE)] == '#':
             count_not_beacon += 1
 
-    print("P1 ans", count_not_beacon)
+    print("P1 ans should be 5688618", count_not_beacon)
 
 
 problemOne()
