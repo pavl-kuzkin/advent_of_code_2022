@@ -149,8 +149,7 @@ def problemTwo():
         direction_order.append(direction_order.popleft())
         pprint_elves(elves)
 
-    print("P2 ans", calc_score(elves))
-
+    print("Try a bigger range or maybe there is a bug")
 
 
 problemTwo()
