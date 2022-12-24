@@ -1,7 +1,7 @@
 import re
 from collections import deque, defaultdict
 
-INPUT_FILE = "ez-input.txt"
+INPUT_FILE = "input.txt"
 WALL = '#'
 EMPTY = '.'
 UP, DOWN, LEFT, RIGHT = '^', 'v', '<', '>'
@@ -116,6 +116,9 @@ def pprint_winds(winds: list, size: tuple, my_pos: tuple):
 
 
 def wind_loc(init_point: tuple, direction: str, minutes: int, cave_size: tuple):
+    # print(init_point)
+    if init_point == 5:
+        print("oops")
     x, y = init_point
     x_max, y_max = cave_size
     if direction == UP:
@@ -173,7 +176,7 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
     initial_game_state = (start, initial_winds, 0)
     q.append(initial_game_state)
     game_state_times = {hash_game_state(initial_game_state): 0}
-    high_score = 1000
+    high_score = 600
     best_game_state = None
     count_iterations = 0
     while q:
@@ -186,17 +189,17 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
             # print("- abandoning path because reached ", current_time)
             continue
         if location == end:
-            print("-- High Score: {} -> {} IN {} steps (mins) in {} iterations".format(start, end, current_time, count_iterations))
+            print("\n-- High Score: {} -> {} IN {} steps (mins) in {} iterations\n".format(start, end, current_time, count_iterations))
             if current_time < high_score:
                 best_game_state = game_state
             high_score = min(high_score, current_time)
             continue
-        d_end = distance(location, end)
-        if d_end + current_time >= high_score:
-            print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location, d_end, current_time, high_score))
-            continue
+        # d_end = distance(location, end)
+        # if d_end + current_time >= high_score:
+        #     print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location, d_end, current_time, high_score))
+        #     continue
         if count_iterations % 500 == 0:
-            print("iteration", count_iterations)
+            print("\rProcessing: {}".format(count_iterations), end="")
         next_time = current_time + 1
         # for (l, w) in valid_moves(location, initial_winds, next_time, cave_size, start, end):
         #     print(" - valid next move", l)
@@ -214,9 +217,19 @@ def problem_one():
     print("P1 ans", time)
 
 
-problem_one()
+# problem_one()
 
-# def problem_two():
-#
-#
-# problem_two()
+def problem_two():
+    winds, size, start, end = read_input()
+    # go to goal
+    time, (loc0, game_state0, time0) = bfs(winds, size, start, end)
+    # go back to start
+    time1, (loc1, game_state1, time1) = bfs(game_state0, size, end, start)
+    # go back to goal again
+    time2, best_game_state2 = bfs(game_state1, size, start, end)
+    print("P2 ans to goal {} back {} and goal {} for a total of {}".format(time, time1, time2, time + time1 + time2))
+
+
+
+
+problem_two()
