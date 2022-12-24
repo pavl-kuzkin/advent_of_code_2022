@@ -1,8 +1,7 @@
 import re
 from collections import deque
-from functools import cmp_to_key
 
-INPUT_FILE = "ez-input.txt"
+INPUT_FILE = "input.txt"
 ELF = '#'
 NORTH, SOUTH, WEST, EAST = 'N', 'S', 'W', 'E'
 MOVE_ORDER = [NORTH, SOUTH, WEST, EAST]
@@ -14,23 +13,27 @@ MOVES = {
 }
 
 
-def pprint_elves(elves: set):
+def smallest_rect(elves: set):
     x1, x2, y1, y2 = 0, 0, 0, 0
     for elf in elves:
         x, y = elf
         x1, x2, y1, y2 = min(x1, x), max(x2, x), min(y1, y), max(y2, y)
-    for y in reversed(range(y1-1, y2+2)):
+    return x1, x2, y1, y2
+
+
+def pprint_elves(elves: set):
+    x1, x2, y1, y2 = smallest_rect(elves)
+    for y in reversed(range(y1 - 1, y2 + 2)):
         # print('Z' if y == 0 else y%10, end=' ')
         print("{:02d}".format(y), end='')
-        for x in range(x1-1, x2+2):
+        for x in range(x1 - 1, x2 + 2):
             c = ELF if (x, y) in elves else '.'
-            print(c, end='  ')
+            print(c, end=' ')
         print()
     print(' ', end=' ')
-    for x in range(x1-1, x2+2):
-        print("{:02d}".format(x), end=' ')
+    for x in range(x1 - 1, x2 + 2):
+        print("{:02d}".format(x), end='')
     print()
-
 
 
 def p_add(a, b):
@@ -70,25 +73,62 @@ def propose_moves(elf: tuple, all_elves: set, direction_order: deque):
     if not has_neighbor(elf, all_elves, MOVE_ORDER):
         # If no other Elves are in one of those eight positions,
         # the Elf does not do anything
-        return 0, 0
+        return None
     # Otherwise, the Elf looks in each of four directions in the following
     # order and proposes moving one step in the first valid direction:
     for direction in direction_order:
         if not has_neighbor(elf, all_elves, [direction]):
             return MOVES[direction][0]
+    return None
 
 
-def problemOne():
+def plan_moves(elves: set, direction_order: deque):
+    locations = {}
+    for elf in elves:
+        move = propose_moves(elf, elves, direction_order)
+        if move is not None:
+            new_location = p_add(elf, move)
+            if new_location in locations:
+                # more than one want this space so none ge tit
+                locations[new_location] = None
+            else:
+                locations[new_location] = elf
+        # print("elf", elf, "proposed", new_location)
+    print(locations)
+    return locations
+
+
+def turn(elves: set, direction_order: deque):
+    locs = plan_moves(elves, direction_order)
+    for (new_loc, old_loc) in locs.items():
+        if old_loc is None:
+            continue
+        elves.remove(old_loc)
+        elves.add(new_loc)
+    return elves
+
+
+def calc_score(elves: set):
+    # count the number of empty ground tiles contained by the smallest rectangle that contains every Elf.
+    x1, x2, y1, y2 = smallest_rect(elves)
+    return (x2 - x1 + 1) * (y2 - y1 + 1) - len(elves)
+
+
+def problem_one():
     elves = read_input()
     direction_order = deque(MOVE_ORDER)
+    print("initial")
     pprint_elves(elves)
-    for elf in elves:
-        proposed = propose_moves(elf, elves, direction_order)
-        print("elf", elf, "proposed", proposed)
-    print("P1", 0)
+    for i in range(10):
+        elves = turn(elves, direction_order)
+        print("-- round", i + 1, direction_order)
+        direction_order.append(direction_order.popleft())
+        pprint_elves(elves)
+
+    print("P1 ans", calc_score(elves))
 
 
-problemOne()
+problem_one()
 
 # def problemTwo():
 #
