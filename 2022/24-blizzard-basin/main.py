@@ -1,7 +1,6 @@
-import re
-from collections import deque, defaultdict
+from collections import deque
 
-INPUT_FILE = "input.txt"
+INPUT_FILE = "ez-input.txt"
 WALL = '#'
 EMPTY = '.'
 UP, DOWN, LEFT, RIGHT = '^', 'v', '<', '>'
@@ -21,20 +20,7 @@ def p_add(a, b):
     return xa + xb, ya + yb
 
 
-def smallest_rect(elves: set):
-    x1, x2, y1, y2 = 0, 0, 0, 0
-    for elf in elves:
-        x, y = elf
-        x1, x2, y1, y2 = min(x1, x), max(x2, x), min(y1, y), max(y2, y)
-    return x1, x2, y1, y2
-
-
-def p_add(a, b):
-    xa, ya = a
-    xb, yb = b
-    return xa + xb, ya + yb
-
-
+# manhattan distance between two points a and b
 def distance(a, b):
     xa, ya = a
     xb, yb = b
@@ -44,8 +30,6 @@ def distance(a, b):
 def hash_game_state(game_state):
     location, winds, score = game_state
     hashes = [str(location)]
-    if winds == -1:
-        print("debug winds", winds)
     for k in winds:
         hashes.append(str(k))
     return "-".join(hashes)
@@ -78,6 +62,7 @@ def read_input():
     return winds, (width, height), start, end
 
 
+# helper function for pprint
 def find_wind(location, winds):
     found = 0
     d = None
@@ -92,12 +77,14 @@ def find_wind(location, winds):
     else:
         return str(found)
 
+
+# pretty print game board for debugging
 def pprint_winds(winds: list, size: tuple, my_pos: tuple):
     sep = ' '
     x_max, y_max = size
-    for y in reversed(range(-1, y_max+1)):
+    for y in reversed(range(-1, y_max + 1)):
         print("{:02d}".format(y), end=' ')
-        for x in range(-1, x_max+1):
+        for x in range(-1, x_max + 1):
             loc = (x, y)
             if loc == my_pos:
                 print('E', end=sep)
@@ -105,7 +92,7 @@ def pprint_winds(winds: list, size: tuple, my_pos: tuple):
                 print(find_wind((x, y), winds), end=sep)
         print()
     print(' ', end=sep)
-    for x in range(-1, x_max+1):
+    for x in range(-1, x_max + 1):
         if 0 <= x < 10:
             print(' ', end='')
             print(x, end='')
@@ -115,6 +102,7 @@ def pprint_winds(winds: list, size: tuple, my_pos: tuple):
     print()
 
 
+# get location of a particular wind at given time
 def wind_loc(init_point: tuple, direction: str, minutes: int, cave_size: tuple):
     # print(init_point)
     if init_point == 5:
@@ -131,6 +119,7 @@ def wind_loc(init_point: tuple, direction: str, minutes: int, cave_size: tuple):
         return (x + minutes) % x_max, y
 
 
+# get locations of all winds at a given time
 def winds_locs(init_winds: list, minutes: int, cave_size: tuple):
     current_winds = []
     for (loc, dir) in init_winds:
@@ -139,15 +128,16 @@ def winds_locs(init_winds: list, minutes: int, cave_size: tuple):
     return current_winds
 
 
-
-
-def count_wind(location, winds):
-    found = 0
+# check if location has wind to calculate valid moves
+def has_wind(location, winds):
     for (wind_loc, dir) in winds:
         if wind_loc == location:
-            found += 1
-    return found
+            return True
+    return False
 
+
+# get all valid moves from location given location of winds
+# current location of winds calculated as F(winds, time) = new_winds
 def valid_moves(location: tuple, winds: list, minutes: int, cave_size: tuple, start, end):
     valid = []
     new_winds = winds_locs(winds, minutes, cave_size)
@@ -162,12 +152,17 @@ def valid_moves(location: tuple, winds: list, minutes: int, cave_size: tuple, st
             return [(new_loc, new_winds, minutes)]
         if new_loc != start and (x < 0 or y < 0 or y > y_max - 1 or x > x_max - 1):
             continue
-        if count_wind(new_loc, new_winds) == 0:
+        if not has_wind(new_loc, new_winds):
             game_state = (new_loc, new_winds, minutes)
             valid.append(game_state)
     return valid
 
 
+# BFS on a cyclical bidriectional graph
+# The nodes of the graph are the state of the board (your location and location and direction of each wind)
+# The edges are all possible valid moves (1 move per 1 minute)
+# Do a BFS and count best time aka move count
+# Need to hash the game state to check that we've visited nodes before.
 def bfs(initial_winds: list, cave_size: tuple, start, end):
     print("\n== BFS {} -> {} == \n".format(start, end))
     q = deque()
@@ -189,15 +184,19 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
             # print("- abandoning path because reached ", current_time)
             continue
         if location == end:
-            print("\n-- High Score: {} -> {} IN {} steps (mins) in {} iterations\n".format(start, end, current_time, count_iterations))
+            print("\n-- High Score: {} -> {} IN {} steps (mins) in {} iterations\n".format(start, end, current_time,
+                                                                                           count_iterations))
             if current_time < high_score:
                 best_game_state = game_state
             high_score = min(high_score, current_time)
             continue
-        # d_end = distance(location, end)
-        # if d_end + current_time >= high_score:
-        #     print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location, d_end, current_time, high_score))
-        #     continue
+        d_end = distance(location, end)
+        if d_end + current_time >= high_score:
+            print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location,
+                                                                                                               d_end,
+                                                                                                               current_time,
+                                                                                                               high_score))
+            continue
         if count_iterations % 500 == 0:
             print("\rProcessing: {}".format(count_iterations), end="")
         next_time = current_time + 1
@@ -217,7 +216,8 @@ def problem_one():
     print("P1 ans", time)
 
 
-# problem_one()
+problem_one()
+
 
 def problem_two():
     winds, size, start, end = read_input()
@@ -228,8 +228,6 @@ def problem_two():
     # go back to goal again
     time2, best_game_state2 = bfs(game_state1, size, start, end)
     print("P2 ans to goal {} back {} and goal {} for a total of {}".format(time, time1, time2, time + time1 + time2))
-
-
 
 
 problem_two()
