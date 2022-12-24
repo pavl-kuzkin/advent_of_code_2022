@@ -166,7 +166,7 @@ def valid_moves(location: tuple, winds: list, minutes: int, cave_size: tuple, st
 
 
 def bfs(initial_winds: list, cave_size: tuple, start, end):
-    print("\n== BFS == \n")
+    print("\n== BFS {} -> {} == \n".format(start, end))
     q = deque()
     # graph node is your location + wind location
     # graph edges are possible moves
@@ -185,7 +185,7 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
             print("- abandoning path because reached ", current_time)
             continue
         if location == end:
-            print("-- REACHED END IN {} steps (mins) in {} iterations".format(current_time, count_iterations))
+            print("-- REACHED {} IN {} steps (mins) in {} iterations".format(end, current_time, count_iterations))
             high_score = min(high_score, current_time)
             continue
         d_end = distance(location, end)
