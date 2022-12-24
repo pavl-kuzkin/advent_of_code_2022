@@ -173,28 +173,28 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
     initial_game_state = (start, initial_winds, 0)
     q.append(initial_game_state)
     game_state_times = {hash_game_state(initial_game_state): 0}
-    best_full_run = 1000
+    high_score = 1000
     count_iterations = 0
     while q:
         count_iterations += 1
         game_state = q.popleft()
-        (location, winds, best_time) = game_state
+        (location, winds, current_time) = game_state
         # print("Location", location, "time", best_time)
         # pprint_winds(winds, cave_size, location)
-        if best_time >= best_full_run:
-            print("- abandoning path because reached ", best_time)
+        if current_time >= high_score:
+            print("- abandoning path because reached ", current_time)
             continue
         if location == end:
-            print("-- REACHED END IN {} steps (mins) in {} iterations".format(best_time, count_iterations))
-            best_full_run = min(best_full_run, best_time)
+            print("-- REACHED END IN {} steps (mins) in {} iterations".format(current_time, count_iterations))
+            high_score = min(high_score, current_time)
             continue
         d_end = distance(location, end)
-        if d_end + best_time >= best_full_run:
-            print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location, d_end, best_time, best_full_run))
+        if d_end + current_time >= high_score:
+            print("- abandoning path at {} because distance to end {} + current time {} > best time {}".format(location, d_end, current_time, high_score))
             continue
         if count_iterations % 500 == 0:
             print("iteration", count_iterations)
-        next_time = best_time + 1
+        next_time = current_time + 1
         # for (l, w) in valid_moves(location, initial_winds, next_time, cave_size, start, end):
         #     print(" - valid next move", l)
         for next_game_state in valid_moves(location, initial_winds, next_time, cave_size, start, end):
@@ -202,7 +202,7 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
             if hashed_game not in game_state_times:
                 q.append(next_game_state)
                 game_state_times[hashed_game] = next_time
-    return best_full_run
+    return high_score
 
 
 def problem_one():
