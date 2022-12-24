@@ -83,19 +83,23 @@ def propose_moves(elf: tuple, all_elves: set, direction_order: deque):
 
 
 def plan_moves(elves: set, direction_order: deque):
-    locations = {}
+    planned_moves = {}
     for elf in elves:
         move = propose_moves(elf, elves, direction_order)
         if move is not None:
             new_location = p_add(elf, move)
-            if new_location in locations:
+            if new_location in planned_moves:
                 # more than one want this space so none ge tit
-                locations[new_location] = None
+                planned_moves[new_location] = None
             else:
-                locations[new_location] = elf
+                planned_moves[new_location] = elf
         # print("elf", elf, "proposed", new_location)
-    print(locations)
-    return locations
+    print("moves planned", planned_moves)
+    if not planned_moves:
+        print("Moving ended")
+        raise Exception("we done")
+
+    return planned_moves
 
 
 def turn(elves: set, direction_order: deque):
@@ -128,9 +132,25 @@ def problem_one():
     print("P1 ans", calc_score(elves))
 
 
-problem_one()
+# problem_one()
 
-# def problemTwo():
-#
-#
-# problemTwo()
+def problemTwo():
+    elves = read_input()
+    direction_order = deque(MOVE_ORDER)
+    print("initial")
+    pprint_elves(elves)
+    for i in range(4000):
+        try:
+            elves = turn(elves, direction_order)
+        except:
+            print("P2 ans", i + 1)
+            return
+        print("-- round", i + 1, direction_order)
+        direction_order.append(direction_order.popleft())
+        pprint_elves(elves)
+
+    print("P2 ans", calc_score(elves))
+
+
+
+problemTwo()
