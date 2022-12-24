@@ -1,7 +1,7 @@
 import re
 from collections import deque, defaultdict
 
-INPUT_FILE = "input.txt"
+INPUT_FILE = "ez-input.txt"
 WALL = '#'
 EMPTY = '.'
 UP, DOWN, LEFT, RIGHT = '^', 'v', '<', '>'
@@ -174,6 +174,7 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
     q.append(initial_game_state)
     game_state_times = {hash_game_state(initial_game_state): 0}
     high_score = 1000
+    best_game_state = None
     count_iterations = 0
     while q:
         count_iterations += 1
@@ -182,10 +183,12 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
         # print("Location", location, "time", best_time)
         # pprint_winds(winds, cave_size, location)
         if current_time >= high_score:
-            print("- abandoning path because reached ", current_time)
+            # print("- abandoning path because reached ", current_time)
             continue
         if location == end:
-            print("-- REACHED {} IN {} steps (mins) in {} iterations".format(end, current_time, count_iterations))
+            print("-- High Score: {} -> {} IN {} steps (mins) in {} iterations".format(start, end, current_time, count_iterations))
+            if current_time < high_score:
+                best_game_state = game_state
             high_score = min(high_score, current_time)
             continue
         d_end = distance(location, end)
@@ -202,13 +205,13 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
             if hashed_game not in game_state_times:
                 q.append(next_game_state)
                 game_state_times[hashed_game] = next_time
-    return high_score
+    return high_score, best_game_state
 
 
 def problem_one():
     winds, size, start, end = read_input()
-    ans = bfs(winds, size, start, end)
-    print("P1 ans", ans)
+    time, best_game_state = bfs(winds, size, start, end)
+    print("P1 ans", time)
 
 
 problem_one()
