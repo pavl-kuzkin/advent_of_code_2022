@@ -20,6 +20,7 @@ MOVES = {
     LEFT: (-1, 0),
     RIGHT: (1, 0)
 }
+# Switched the direction because the map y-axis was inverted
 TURN_COUNTERCLOCKWISE = {
     UP: RIGHT,
     RIGHT: DOWN,
