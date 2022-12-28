@@ -3,6 +3,55 @@ from collections import deque
 INPUT_FILE = "ez-input.txt"
 
 
+class Node:
+    def __init__(self, v: int):
+        self.val = v
+        self.nxt = None
+        self.prev = None
+
+    def set_nxt(self, n: 'Node'):
+        self.nxt = n
+        n.prev = self
+
+    def __str__(self):
+        return "{}->{}".format(self.val, self.nxt if self.nxt is None else self.nxt.val)
+
+
+    def mix(self):
+        steps = self.val
+        if steps > 0:
+            for i in range(steps):
+                self.switch_forward()
+
+    def switch_forward(self):
+        # before
+        # n1 - n2 - n3 - n4
+        # after n2 goes step right
+        # n1 - n3 - n2 - n4
+        n1 = self.prev
+        n2 = self
+        n3 = self.nxt
+        n4 = n3.next
+        n2.set_nxt(n4)
+        n3.set_nxt(n2)
+        n1.set_nxt(n3)
+
+
+
+
+
+
+    def pprint(self):
+        s = ["{} ->".format(self.val)]
+        sib = self.nxt
+        while sib is not None and sib is not self:
+            s.append("{} ->".format(sib.val))
+            if sib.nxt is self:
+                s.append("loop to begin")
+            sib = sib.nxt
+        print(' '.join(s))
+
+
 def read_input():
     lines = open(INPUT_FILE, "r").readlines()
     code = deque()
@@ -26,7 +75,7 @@ def shuffle(q: deque):
         if val == 0:
             continue
         old_idx = shuffled.index(vi)
-        next_idx = (old_idx+val)
+        next_idx = (old_idx + val)
         if next_idx == 0:
             next_idx = length
         elif next_idx > length:
@@ -40,6 +89,7 @@ def shuffle(q: deque):
         print(just_nums(shuffled), '\n')
     return just_nums(shuffled)
 
+
 def just_nums(shuffled):
     just_nums = []
     for (val, idx) in shuffled:
@@ -47,17 +97,33 @@ def just_nums(shuffled):
     return just_nums
 
 
+def linked_list(code):
+    nodes = [Node(v) for v in code]
+    tail = nodes[len(nodes) - 1]
+    head = nodes[0]
+    tail.set_nxt(head)
+    for i in range(len(nodes) - 1):
+        n1 = nodes[i]
+        n2 = nodes[i + 1]
+        n1.set_nxt(n2)
+    return nodes
+
+
 def problem_one():
     code = read_input()
-    shuffled = shuffle(code)
-    zero_idx = shuffled.index(0)
-    length = len(shuffled)
-    print("shuffled", shuffled)
-    v1000 = shuffled[(zero_idx + 1000) % length]
-    v2000 = shuffled[(zero_idx + 2000) % length]
-    v3000 = shuffled[(zero_idx + 3000) % length]
-    print("1000th {} 2000th {} 3000 {}".format(v1000, v2000, v3000))
-    print("\nP1 ans", v1000 + v2000 + v3000)
+    nodes = linked_list(code)
+    head = nodes[0]
+    head.pprint()
+
+    # shuffled = shuffle(code)
+    # zero_idx = shuffled.index(0)
+    # length = len(shuffled)
+    # print("shuffled", shuffled)
+    # v1000 = shuffled[(zero_idx + 1000) % length]
+    # v2000 = shuffled[(zero_idx + 2000) % length]
+    # v3000 = shuffled[(zero_idx + 3000) % length]
+    # print("1000th {} 2000th {} 3000 {}".format(v1000, v2000, v3000))
+    # print("\nP1 ans", v1000 + v2000 + v3000)
 
 
 problem_one()
