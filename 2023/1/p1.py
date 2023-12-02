@@ -55,4 +55,4 @@ def solution():
     # if the bag contained only 12 red cubes, 13 green cubes, and 14 blue cubes?
 
 ans = solution()
-print("answer is ", ans)
+print("answer is ", ans) # 2810 for me
