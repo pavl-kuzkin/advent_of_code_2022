@@ -23,8 +23,8 @@ def parse_line(line: str):
     return color_maps
 
 
-# game - {'red': '18', 'blue': '2'}, {'red': '9', 'green': '5', 'blue': '4'}
-def minSet(game):
+# game - [{'red': '18', 'blue': '2'}, {'red': '9', 'green': '5', 'blue': '4'}]
+def minSet(game: list):
     minSet = {
         'red': 0,
         'green': 0,
@@ -46,7 +46,7 @@ def setPower(minSet: dict):
 # What is the sum of the power of these sets?
 def solution():
     parsed_input = read_input()
-    return sum(map(lambda x: setPower(minSet(x)), parsed_input))
+    return sum(map(setPower(minSet), parsed_input))
 
 
 ans = solution()
