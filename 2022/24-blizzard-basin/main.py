@@ -179,7 +179,7 @@ def bfs(initial_winds: list, cave_size: tuple, start, end):
         game_state = q.popleft()
         (location, winds, current_time) = game_state
         # print("Location", location, "time", best_time)
-        # pprint_winds(winds, cave_size, location)
+        pprint_winds(winds, cave_size, location)
         if current_time >= high_score:
             # print("- abandoning path because reached ", current_time)
             continue
