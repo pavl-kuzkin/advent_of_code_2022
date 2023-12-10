@@ -14,7 +14,7 @@ def parse_line(line: str):
     nums = line.split(': ')[1]
     [winning_nums, got_nums] = nums.split(' | ')
 
-    return winning_nums.strip().split(' '), got_nums.strip().split(' ')
+    return winning_nums.strip().split(' '), list(filter(lambda x: len(x) > 0, got_nums.split(' ')))
 
 def solve():
     input = read_input()
@@ -36,6 +36,8 @@ def count(winning_nums: list, got_nums: list):
     if matches == 0:
         return 0
     else:
+        print(winning_nums)
+        print(got_nums, matches, pow(2, matches - 1))
         return pow(2, matches - 1)
 
 
